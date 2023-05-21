@@ -1,8 +1,19 @@
 если в проекте много Providers(для языка, для редакса, графКЛ и тд), можно создать свой кастомный провайдер,
 который будет содержать все остальные, что бы использовать кастомный при юнит-тестов
+Index.ts file:
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+root.render(
+  <React.StrictMode>
+    <Suspense>
+      <Provider store={store}>
+        <GlobalStyle />
+        <App />
+      </Provider>
+    </Suspense>
+  </React.StrictMode>,
+);
 
-
-
+file with custom provider:
 import { ReactElement } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { I18nextProvider } from 'react-i18next';
