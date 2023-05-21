@@ -1,0 +1,63 @@
+если в проекте много Providers(для языка, для редакса, графКЛ и тд), можно создать свой кастомный провайдер,
+который будет содержать все остальные, что бы использовать кастомный при юнит-тестов
+
+
+
+import { ReactElement } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
+import { I18nextProvider } from 'react-i18next';
+import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
+import { IWithProvidersOptions } from './type';
+
+export const WithProviders = (
+  component: ReactElement,
+  { i18n, store, basename, initialEntries, initialIndex }: IWithProvidersOptions,
+) => (
+  <MemoryRouter basename={basename} initialEntries={initialEntries} initialIndex={initialIndex}>
+    <HelmetProvider>
+      <I18nextProvider i18n={i18n}>
+        {store ? <Provider store={store}>{component}</Provider> : component}
+      </I18nextProvider>
+    </HelmetProvider>
+  </MemoryRouter>
+);
+
+
+
+unit-test-file:
+
+import { RenderResult, render } from '@testing-library/react';
+import { store } from 'redux/store';
+import { WithProviders } from 'utils/WithProviders/WithProviders';
+import i18n from 'utils/languages/i18nForTests';
+import { MyCards } from '../MyCards';
+import { mockCreditCardsList } from '../mocks/mocks';
+
+jest.mock('redux/api/cards/cardsApi', () => ({
+  useGetCreditCardsQuery: () => ({ data: mockCreditCardsList }),
+  useGetDebitCardsQuery: () => ({ data: { cards: [] } }),
+}));
+
+jest.mock('../MyCardsLayout/MyCardsLayout', () => ({
+  useMyCardContext: () => ({ setIdAndType: jest.fn() }),
+}));
+
+describe('MyCards', () => {
+  let renderResult: RenderResult;
+
+  beforeEach(() => {
+    jest.resetModules();
+    renderResult = render(
+      WithProviders(<MyCards />, { i18n, store, initialEntries: ['/cards/my-cards'] }),
+    );
+  });
+
+  it('should render correctly', () => {
+    expect(renderResult.container).toBeInTheDocument();
+  });
+
+  it('snapshot', () => {
+    expect(renderResult.container).toMatchSnapshot();
+  });
+});
