@@ -36,12 +36,15 @@ const baseQueryWithReAuth: BaseQueryFn = async (args, api, extraOptions) => {
 
   return result;
 };
+
+
 создаем базовый обьект для TRKQuery
 export const apiSlice = createApi({
   baseQuery: baseQueryWithReAuth,
   endpoints: builder => ({}),
   tagTypes: ['generalInfo', 'notificationSettings'],
 });
+
 
 файл с запросами, в котором мы уже используем  наш базовый обьект - apiSlice
 import { apiSlice } from 'redux/api/apiSlice';
@@ -89,6 +92,32 @@ export const {
   useGetLoanProductsQuery,   (getLoanProducts)
   useUpdateCardStatusMutation,  (updateCardStatus)
 } = cardsApi;
+
+файл с STORE:
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { useDispatch } from 'react-redux';
+import { apiSlice } from './api/apiSlice';
+import userDataSlice from './userDataSlice/userDataSlice';
+
+осздаем комбайнредюсер, в кторый ложем наши два редьюсера (два разных state), 
+указываем, что это обьект с полями: user and динамическое поле, для RTKQuery, которое берем из reducerPath.
+т.е. к значению в  "user" мы будем обращаться как state.user.somefield
+export const rootReducer = combineReducers({
+
+  user: userDataSlice,
+  [apiSlice.reducerPath]: apiSlice.reducer,
+});
+
+export const store = configureStore({
+  reducer: rootReducer,
+  middleware: getDefaultMiddleware => getDefaultMiddleware().concat(apiSlice.middleware),
+});
+
+export type RootReducer = ReturnType<typeof rootReducer>;
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+export const useAppDispatch: () => AppDispatch = useDispatch;
+
 
 файл, с компонентом, в которм вызывается хук
 const [updateUser, { data, isLoading, isError }] = useUpdateCardStatusMutation();
