@@ -85,3 +85,18 @@ file with Routes: (!мы не передаем в путь query params!)
             <Route path=":cardName" element={<CardProductDetails />} />
           </Route>
         </Route>
+
+
+file в которм мы задаем URL(обязательно прежде чем передовать serchParams in url, их нужно закодировать через createSearchParams):
+import { createSearchParams, useNavigate } from 'react-router-dom';
+
+const navigate = useNavigate();
+const showMoreDetails = () => {
+    navigate({
+      pathname: `${cardName}`,
+      search: `?${createSearchParams({
+        cardId,
+        cardType,
+      })}`,
+    });
+  };
