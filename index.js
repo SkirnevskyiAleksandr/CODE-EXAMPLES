@@ -73,7 +73,7 @@ export const MyCardDetails = () => {
 };
 
 
-file with Routes:
+file with Routes: (!мы не передаем в путь query params!)
 ...<Route path={CARDS} element={<CardsLayout />}>
           <Route index element={<Navigate to={MY_CARDS} replace />} />
           <Route path={MY_CARDS} element={<MyCardsLayout />}>
